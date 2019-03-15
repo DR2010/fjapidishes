@@ -11,19 +11,14 @@ import (
 
 	dishes "fjapidishes/models"
 
-	"github.com/go-redis/redis"
-
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 // Dishadd is for export
-func Dishadd(redisclient *redis.Client, dishInsert dishes.Dish) helper.Resultado {
+func Dishadd(dishInsert dishes.Dish) helper.Resultado {
 
-	database := new(helper.DatabaseX)
-	database.Collection, _ = redisclient.Get("CollectionDishes").Result()
-	database.Database, _ = redisclient.Get("API.MongoDB.Database").Result()
-	database.Location, _ = redisclient.Get("API.MongoDB.Location").Result()
+	database := helper.GetDBParmFromCache("CollectionDishes")
 
 	session, err := mgo.Dial(database.Location)
 	if err != nil {
@@ -51,12 +46,9 @@ func Dishadd(redisclient *redis.Client, dishInsert dishes.Dish) helper.Resultado
 }
 
 // Find is to find stuff
-func Find(redisclient *redis.Client, dishFind string) (dishes.Dish, string) {
+func Find(dishFind string) (dishes.Dish, string) {
 
-	database := new(helper.DatabaseX)
-	database.Collection, _ = redisclient.Get("CollectionDishes").Result()
-	database.Database, _ = redisclient.Get("API.MongoDB.Database").Result()
-	database.Location, _ = redisclient.Get("API.MongoDB.Location").Result()
+	database := helper.GetDBParmFromCache("CollectionDishes")
 
 	dishName := dishFind
 	dishnull := dishes.Dish{}
@@ -88,19 +80,10 @@ func Find(redisclient *redis.Client, dishFind string) (dishes.Dish, string) {
 }
 
 // Getall works
-func Getall(redisclient *redis.Client) []dishes.Dish {
+func Getall() []dishes.Dish {
 
-	database := new(helper.DatabaseX)
-
-	database.Collection, _ = redisclient.Get("CollectionDishes").Result()
-	database.Database, _ = redisclient.Get("API.MongoDB.Database").Result()
-	database.Location, _ = redisclient.Get("API.MongoDB.Location").Result()
-
-	// database.Database = "restaurante"
-	// database.Location = "192.168.2.180"
-
-	fmt.Println("database.Location")
-	fmt.Println(database.Location)
+	// Get database variables
+	database := helper.GetDBParmFromCache("CollectionDishes")
 
 	session, err := mgo.Dial(database.Location)
 
@@ -131,16 +114,9 @@ func Getall(redisclient *redis.Client) []dishes.Dish {
 }
 
 // GetAvailable works
-func GetAvailable(redisclient *redis.Client) []dishes.Dish {
+func GetAvailable() []dishes.Dish {
 
-	database := new(helper.DatabaseX)
-
-	database.Collection, _ = redisclient.Get("CollectionDishes").Result()
-	database.Database, _ = redisclient.Get("API.MongoDB.Database").Result()
-	database.Location, _ = redisclient.Get("API.MongoDB.Location").Result()
-
-	// database.Database = "restaurante"
-	// database.Location = "192.168.2.180"
+	database := helper.GetDBParmFromCache("CollectionDishes")
 
 	fmt.Println("database.Location")
 	fmt.Println(database.Location)
@@ -175,12 +151,12 @@ func GetAvailable(redisclient *redis.Client) []dishes.Dish {
 }
 
 // Dishupdate is
-func Dishupdate(redisclient *redis.Client, dishUpdate dishes.Dish) helper.Resultado {
+func Dishupdate(dishUpdate dishes.Dish) helper.Resultado {
 
 	database := new(helper.DatabaseX)
-	database.Collection, _ = redisclient.Get("CollectionDishes").Result()
-	database.Database, _ = redisclient.Get("API.MongoDB.Database").Result()
-	database.Location, _ = redisclient.Get("API.MongoDB.Location").Result()
+	database.Collection = helper.Getvaluefromcache("CollectionDishes")
+	database.Database = helper.Getvaluefromcache("API.MongoDB.Database")
+	database.Location = helper.Getvaluefromcache("API.MongoDB.Location")
 
 	session, err := mgo.Dial(database.Location)
 	if err != nil {
@@ -208,12 +184,9 @@ func Dishupdate(redisclient *redis.Client, dishUpdate dishes.Dish) helper.Result
 }
 
 // Dishdelete is
-func Dishdelete(redisclient *redis.Client, dishDelete dishes.Dish) helper.Resultado {
+func Dishdelete(dishDelete dishes.Dish) helper.Resultado {
 
-	database := new(helper.DatabaseX)
-	database.Collection, _ = redisclient.Get("CollectionDishes").Result()
-	database.Database, _ = redisclient.Get("API.MongoDB.Database").Result()
-	database.Location, _ = redisclient.Get("API.MongoDB.Location").Result()
+	database := helper.GetDBParmFromCache("CollectionDishes")
 
 	session, err := mgo.Dial(database.Location)
 	if err != nil {

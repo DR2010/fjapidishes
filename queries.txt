@@ -76,7 +76,7 @@ Mais dois
 
 db.getSiblingDB("festajunina").getCollection("security").find({});
 db.getSiblingDB("festajunina").getCollection("orders").find({});
-db.getSiblingDB("festajunina").getCollection("security").find({ userid : "manuel@manuel.com" });
+db.getSiblingDB("festajunina").getCollection("security").find({ clientid : "USR79896" });
 it
 db.getSiblingDB("festajunina").getCollection("security").remove( { userid : "PSRNASC@OUTLOOK.COM" } )
 

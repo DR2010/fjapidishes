@@ -7,7 +7,6 @@ package main
 import (
 	"encoding/json"
 	dishesmethods "fjapidishes/dishes"
-	helper "fjapidishes/helper"
 	dishes "fjapidishes/models"
 	"fmt"
 	"net/http"
@@ -15,8 +14,6 @@ import (
 
 // Hdishfind is
 func Hdishfind(httpwriter http.ResponseWriter, httprequest *http.Request) {
-
-	redisclient := helper.GetRedisPointer()
 
 	dishfound := dishes.Dish{}
 
@@ -31,7 +28,7 @@ func Hdishfind(httpwriter http.ResponseWriter, httprequest *http.Request) {
 	fmt.Println("httprequest.FormValue dishname")
 	fmt.Println(dishtofind)
 
-	dishfound, _ = dishesmethods.Find(redisclient, dishtofind)
+	dishfound, _ = dishesmethods.Find(dishtofind)
 
 	json.NewEncoder(httpwriter).Encode(&dishfound)
 }
@@ -53,7 +50,7 @@ func Hdishadd(httpwriter http.ResponseWriter, req *http.Request) {
 	dishtoadd.Description = req.FormValue("dishdescription")
 	dishtoadd.Descricao = req.FormValue("dishdescricao")
 
-	_, recordstatus := dishesmethods.Find(redisclient, dishtoadd.Name)
+	_, recordstatus := dishesmethods.Find(dishtoadd.Name)
 	if recordstatus == "200 OK" {
 		fmt.Println("dishtoadd.Name")
 		fmt.Println(dishtoadd.Name)
@@ -72,7 +69,7 @@ func Hdishadd(httpwriter http.ResponseWriter, req *http.Request) {
 	// dishtoadd.DairyFree = params.Get("dishdairyfree")
 	// dishtoadd.Vegetarian = params.Get("dishvegetarian")
 
-	ret := dishesmethods.Dishadd(redisclient, dishtoadd)
+	ret := dishesmethods.Dishadd(dishtoadd)
 
 	if ret.IsSuccessful == "Y" {
 		// do something
@@ -81,8 +78,6 @@ func Hdishadd(httpwriter http.ResponseWriter, req *http.Request) {
 
 // Hdishupdate is
 func Hdishupdate(httpwriter http.ResponseWriter, req *http.Request) {
-
-	redisclient := helper.GetRedisPointer()
 
 	dishtoupdate := dishes.Dish{}
 
@@ -109,7 +104,7 @@ func Hdishupdate(httpwriter http.ResponseWriter, req *http.Request) {
 	// dishtoadd.DairyFree = params.Get("dishdairyfree")
 	// dishtoadd.Vegetarian = params.Get("dishvegetarian")
 
-	ret := dishesmethods.Dishupdate(redisclient, dishtoupdate)
+	ret := dishesmethods.Dishupdate(dishtoupdate)
 
 	if ret.IsSuccessful == "Y" {
 		// do something
@@ -118,8 +113,6 @@ func Hdishupdate(httpwriter http.ResponseWriter, req *http.Request) {
 
 // Hdishdelete is
 func Hdishdelete(httpwriter http.ResponseWriter, req *http.Request) {
-
-	redisclient := helper.GetRedisPointer()
 
 	dishtoupdate := dishes.Dish{}
 
@@ -135,7 +128,7 @@ func Hdishdelete(httpwriter http.ResponseWriter, req *http.Request) {
 	dishtoupdate.Description = req.FormValue("dishdescription")
 	dishtoupdate.Descricao = req.FormValue("dishdescricao")
 
-	ret := dishesmethods.Dishdelete(redisclient, dishtoupdate)
+	ret := dishesmethods.Dishdelete(dishtoupdate)
 
 	if ret.IsSuccessful == "Y" {
 		// do something
@@ -145,7 +138,7 @@ func Hdishdelete(httpwriter http.ResponseWriter, req *http.Request) {
 // Hdishalsolist is
 func Hdishalsolist(httpwriter http.ResponseWriter, req *http.Request) {
 
-	var dishlist = dishesmethods.Getall(redisclient)
+	var dishlist = dishesmethods.Getall()
 
 	json.NewEncoder(httpwriter).Encode(&dishlist)
 }
@@ -153,7 +146,7 @@ func Hdishalsolist(httpwriter http.ResponseWriter, req *http.Request) {
 // Hdishlist is a function to return a list of dishes
 func Hdishlist(httpwriter http.ResponseWriter, req *http.Request) {
 
-	var dishlist = dishesmethods.Getall(redisclient)
+	var dishlist = dishesmethods.Getall()
 
 	json.NewEncoder(httpwriter).Encode(&dishlist)
 }
@@ -161,7 +154,7 @@ func Hdishlist(httpwriter http.ResponseWriter, req *http.Request) {
 // Hdishlistavailable is a function to return a list of dishes
 func Hdishlistavailable(httpwriter http.ResponseWriter, req *http.Request) {
 
-	var dishlist = dishesmethods.GetAvailable(redisclient)
+	var dishlist = dishesmethods.GetAvailable()
 
 	json.NewEncoder(httpwriter).Encode(&dishlist)
 }
