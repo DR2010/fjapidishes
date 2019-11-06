@@ -49,6 +49,7 @@ func Hdishadd(httpwriter http.ResponseWriter, req *http.Request) {
 	dishtoadd.ImageName = req.FormValue("dishimagename")
 	dishtoadd.Description = req.FormValue("dishdescription")
 	dishtoadd.Descricao = req.FormValue("dishdescricao")
+	dishtoadd.ActivityType = req.FormValue("dishactivitytype")
 
 	_, recordstatus := dishesmethods.Find(dishtoadd.Name)
 	if recordstatus == "200 OK" {
@@ -92,6 +93,7 @@ func Hdishupdate(httpwriter http.ResponseWriter, req *http.Request) {
 	dishtoupdate.ImageName = req.FormValue("dishimagename")
 	dishtoupdate.Description = req.FormValue("dishdescription")
 	dishtoupdate.Descricao = req.FormValue("dishdescricao")
+	dishtoupdate.ActivityType = req.FormValue("dishactivitytype")
 
 	fmt.Println("dishtoupdate.Name")
 	fmt.Println(dishtoupdate.Name)
@@ -127,6 +129,7 @@ func Hdishdelete(httpwriter http.ResponseWriter, req *http.Request) {
 	dishtoupdate.ImageName = req.FormValue("dishimagename")
 	dishtoupdate.Description = req.FormValue("dishdescription")
 	dishtoupdate.Descricao = req.FormValue("dishdescricao")
+	dishtoupdate.ActivityType = req.FormValue("dishactivitytype")
 
 	ret := dishesmethods.Dishdelete(dishtoupdate)
 
@@ -147,6 +150,16 @@ func Hdishalsolist(httpwriter http.ResponseWriter, req *http.Request) {
 func Hdishlist(httpwriter http.ResponseWriter, req *http.Request) {
 
 	var dishlist = dishesmethods.Getall()
+
+	json.NewEncoder(httpwriter).Encode(&dishlist)
+}
+
+// Hdishlistbyevent is a function to return a list of dishes
+func Hdishlistbyevent(httpwriter http.ResponseWriter, req *http.Request) {
+
+	var activitytype = req.FormValue("activitytype")
+
+	var dishlist = dishesmethods.GetDishesByActivity(activitytype)
 
 	json.NewEncoder(httpwriter).Encode(&dishlist)
 }

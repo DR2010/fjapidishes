@@ -10,10 +10,11 @@ import (
 	"net/http"
 
 	"github.com/go-redis/redis"
-	_ "github.com/go-sql-driver/mysql"
+	// _ "github.com/go-sql-driver/mysql"
 )
 
 var mongodbvar helper.DatabaseX
+var redisclientX *redis.Client
 var redisclient *redis.Client
 
 var db *sql.DB
@@ -24,11 +25,30 @@ var sysid string
 //
 func main() {
 
+	variable := helper.Readfileintostruct()
+	RedisAddressPort := variable.RedisAddressPort
+	RedisPassword := variable.RedisPassword
+
+	// Local Redis Instance
+	// redisclientX = redis.NewClient(&redis.Options{
+	// 	Addr:     RedisAddressPort,
+	// 	Password: "", // no password set
+	// 	DB:       0,  // use default DB
+	// })
+
+	// Azure Redis Instance
 	redisclient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     RedisAddressPort,
+		Password: RedisPassword,
+		DB:       0, // use default
+		// TLSConfig: &tls.Config{}, // your config here
 	})
+
+	pong, errx := redisclient.Ping().Result()
+	fmt.Println(pong, errx)
+
+	// Azure Redis
+	// Uqtb3wgcdUA4IJEuyRUrtw5gnH0C1oWuOs3h4JTkJ1o=
 
 	fmt.Println(">>> Microservice: fjapidishes running.")
 	fmt.Println("Loading reference data in cache - Redis")
@@ -41,10 +61,6 @@ func main() {
 
 	loadreferencedatainredis()
 
-	// MSAPIdishesPort, _ := redisclient.Get(sysid + "MSAPIdishesPort").Result()
-	// MongoDBLocation, _ := redisclient.Get(sysid + "API.MongoDB.Location").Result()
-	// MongoDBDatabase, _ := redisclient.Get(sysid + "API.MongoDB.Database").Result()
-
 	MSAPIdishesPort := helper.Getvaluefromcache("MSAPIdishesPort")
 	MongoDBLocation := helper.Getvaluefromcache("API.MongoDB.Location")
 	MongoDBDatabase := helper.Getvaluefromcache("API.MongoDB.Database")
@@ -55,6 +71,7 @@ func main() {
 	fmt.Println("Microservice: fjapidishes running - Listening to port: " + MSAPIdishesPort)
 	fmt.Println("MongoDB location: " + MongoDBLocation)
 	fmt.Println("MongoDB database: " + MongoDBDatabase)
+	fmt.Println("RedisAddressPort: " + RedisAddressPort)
 	fmt.Println("SYSID: " + sysid)
 
 	router := XNewRouter()
@@ -88,10 +105,14 @@ func loadreferencedatainredis() {
 	err = redisclient.Set(sysid+"CollectionOrders", variable.CollectionOrders, 0).Err()
 	err = redisclient.Set(sysid+"CollectionSecurity", variable.CollectionSecurity, 0).Err()
 	err = redisclient.Set(sysid+"CollectionDishes", variable.CollectionDishes, 0).Err()
-	err = redisclient.Set(sysid+"CollectionEvents", variable.CollectionEvents, 0).Err()
+	err = redisclient.Set(sysid+"CollectionActivities", variable.CollectionActivities, 0).Err()
 
 	err = redisclient.Set(sysid+"MSAPIdishesPort", variable.MSAPIdishesPort, 0).Err()
 	err = redisclient.Set(sysid+"MSAPIordersPort", variable.MSAPIordersPort, 0).Err()
+	err = redisclient.Set(sysid+"RedisAddressPort", variable.RedisAddressPort, 0).Err()
+	err = redisclient.Set(sysid+"RedisPassword", variable.RedisPassword, 0).Err()
+
+	println(err)
 
 }
 

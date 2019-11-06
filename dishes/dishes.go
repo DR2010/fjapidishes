@@ -113,6 +113,40 @@ func Getall() []dishes.Dish {
 	return nil
 }
 
+// GetDishesByActivity works
+func GetDishesByActivity(activity string) []dishes.Dish {
+
+	// Get database variables
+	database := helper.GetDBParmFromCache("CollectionDishes")
+
+	session, err := mgo.Dial(database.Location)
+
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	// Optional. Switch the session to a monotonic behavior.
+	session.SetMode(mgo.Monotonic, true)
+
+	c := session.DB(database.Database).C(database.Collection)
+
+	var results []dishes.Dish
+
+	err = c.Find(bson.M{"activitytype": activity}).All(&results)
+	if err != nil {
+		// TODO: Do something about the error
+	} else {
+		return results
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return nil
+}
+
 // GetAvailable works
 func GetAvailable() []dishes.Dish {
 
@@ -139,12 +173,15 @@ func GetAvailable() []dishes.Dish {
 
 	if err != nil {
 		// TODO: Do something about the error
+		log.Println("GetAvailable Error http.NewRequest(GET, url, nil): ", err)
+
+		var res helper.Resultado
+		res.ErrorCode = "0021"
+		res.ErrorDescription = "Something Bad Happened"
+		res.IsSuccessful = "N"
+
 	} else {
 		return results
-	}
-
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	return nil
@@ -171,11 +208,21 @@ func Dishupdate(dishUpdate dishes.Dish) helper.Resultado {
 
 	err = collection.Update(bson.M{"name": dishUpdate.Name}, dishUpdate)
 
+	var res helper.Resultado
+
 	if err != nil {
-		log.Fatal(err)
+		// log.Fatal(err)
+
+		log.Println("Dishupdate Error http.NewRequest(GET, url, nil): ", err)
+
+		res.ErrorCode = "0021"
+		res.ErrorDescription = "Something Bad Happened"
+		res.IsSuccessful = "N"
+
+		return res
+
 	}
 
-	var res helper.Resultado
 	res.ErrorCode = "0001"
 	res.ErrorDescription = "Something Happened"
 	res.IsSuccessful = "Y"
@@ -201,11 +248,20 @@ func Dishdelete(dishDelete dishes.Dish) helper.Resultado {
 
 	err = collection.Remove(bson.M{"name": dishDelete.Name})
 
+	var res helper.Resultado
+
 	if err != nil {
 		log.Fatal(err)
+
+		log.Println("Dishdelete Error http.NewRequest(GET, url, nil): ", err)
+
+		res.ErrorCode = "0021"
+		res.ErrorDescription = "Something Bad Happened"
+		res.IsSuccessful = "N"
+
+		return res
 	}
 
-	var res helper.Resultado
 	res.ErrorCode = "0001"
 	res.ErrorDescription = "Dish deleted successfully"
 	res.IsSuccessful = "Y"

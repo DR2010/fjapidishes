@@ -2,7 +2,8 @@ package helper
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fjapidishes/helper"
+
 	"io/ioutil"
 
 	"github.com/go-redis/redis"
@@ -32,9 +33,12 @@ func GetRedisPointer(bucket int) *redis.Client {
 
 	bucket = 0
 
+	variable := Readfileintostruct()
+	RedisAddressPort := variable.RedisAddressPort
+
 	if redisclient == nil {
 		redisclient = redis.NewClient(&redis.Options{
-			Addr:     "localhost:6379",
+			Addr:     RedisAddressPort,
 			Password: "",     // no password set
 			DB:       bucket, // use default DB
 		})
@@ -54,11 +58,14 @@ type RestEnvVariables struct {
 	CollectionOrders      string // Collection Names
 	CollectionSecurity    string // Collection Names
 	CollectionDishes      string // Collection Names
-	CollectionEvents      string // Collection Names
+	CollectionActivities  string // Collection Names
 	MSAPIdishesPort       string // Microservices Port Dishes
 	MSAPIordersPort       string // Microservices Port Orders
+	MSAPIactivitiesPort   string // Microservices Port Activities
 	MSAPItemperaturePort  string // Microservices Port temperature
 	SYSID                 string // Collection Names
+	RedisAddressPort      string // Collection Names
+	RedisPassword         string // Collection Names
 
 }
 
@@ -66,7 +73,7 @@ type RestEnvVariables struct {
 func Readfileintostruct() RestEnvVariables {
 	dat, err := ioutil.ReadFile("fjapidishes.ini")
 	check(err)
-	fmt.Print(string(dat))
+	// fmt.Print(string(dat))
 
 	var restenv RestEnvVariables
 
@@ -83,7 +90,7 @@ func GetSYSID() string {
 
 		dat, err := ioutil.ReadFile("fjapidishes.ini")
 		check(err)
-		fmt.Print(string(dat))
+		// fmt.Print(string(dat))
 
 		var restenv RestEnvVariables
 
@@ -113,10 +120,34 @@ func Getvaluefromcache(key string) string {
 
 	sysid := GetSYSID()
 
-	valuetoreturn, _ := rp.Get(sysid + key).Result()
+	valuetoreturn, err := rp.Get(sysid + key).Result()
+	// valuetoreturn, err := rp.Get()
+
+	println(err)
 
 	return valuetoreturn
 }
+
+// GetvaluefromcacheNewInstance returns the value of a key from cache
+// func GetvaluefromcacheNewInstance(key string) string {
+
+// 	RedisAddressPort := variable.RedisAddressPort
+// 	RedisPassword := variable.RedisPassword
+
+// 	redisclientX := redis.NewClient(&redis.Options{
+// 		Addr:     RedisAddressPort,
+// 		Password: RedisPassword,
+// 		DB:       0, // use default
+// 		// TLSConfig: &tls.Config{}, // your config here
+// 	})
+
+// 	valuetoreturn, err := redisclientX.Get(sysid + key).Result()
+// 	// valuetoreturn, err := rp.Get()
+
+// 	println(err)
+
+// 	return valuetoreturn
+// }
 
 // GetDBParmFromCache returns the value of a key from cache
 func GetDBParmFromCache(collection string) *DatabaseX {
